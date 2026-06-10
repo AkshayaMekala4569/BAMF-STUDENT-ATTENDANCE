@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BAMF Check-In System</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; min-height:100vh; overflow-x:hidden; background:#1c0a4a; }
+.bg { position:fixed; inset:0; z-index:0; background: radial-gradient(ellipse 55% 80% at 0% 50%, #2d0f7a 0%, #1c0a4a 55%), radial-gradient(ellipse 55% 70% at 100% 40%, #c45a0a 0%, transparent 60%), radial-gradient(ellipse 40% 50% at 100% 90%, #8b2fc9 0%, transparent 50%), #1c0a4a; }
+.deco { position:fixed; inset:0; z-index:1; pointer-events:none; overflow:hidden; }
+.deco-ring { position:absolute; border-radius:50%; border:3px solid rgba(245,166,35,0.6); animation:floatDeco 9s ease-in-out infinite; }
+.dr1{width:95px;height:95px;top:6%;left:3%;}
+.dr2{width:55px;height:55px;top:18%;left:9%;animation-delay:1.2s;}
+.dr3{width:75px;height:75px;top:5%;right:4%;animation-delay:0.6s;border-color:rgba(200,100,255,0.3);}
+.dr4{width:110px;height:110px;bottom:8%;right:2%;animation-delay:1.8s;border-color:rgba(245,166,35,0.3);}
+.deco-dot{position:absolute;border-radius:50%;animation:floatDeco 7s ease-in-out infinite;}
+.dd1{width:14px;height:14px;background:rgba(0,210,170,0.85);top:38%;left:2%;animation-delay:0.5s;box-shadow:0 0 14px rgba(0,210,170,0.6);}
+.dd2{width:10px;height:10px;background:rgba(100,190,255,0.9);top:62%;left:1.5%;animation-delay:2s;}
+.dd3{width:16px;height:16px;background:rgba(255,120,60,0.8);bottom:20%;right:2.5%;animation-delay:1s;}
+.dd4{width:11px;height:11px;background:rgba(200,100,255,0.8);top:75%;right:1.5%;animation-delay:1.6s;}
+@keyframes floatDeco{0%,100%{transform:translateY(0) rotate(0)}33%{transform:translateY(-22px) rotate(4deg)}66%{transform:translateY(-10px) rotate(-4deg)}}
+
+.header{position:relative;z-index:20;padding:0 40px;display:flex;align-items:stretch;justify-content:space-between;background:rgba(255,255,255,0.07);backdrop-filter:blur(24px);border-bottom:1px solid rgba(255,255,255,0.1);min-height:70px;}
+.brand{display:flex;align-items:center;gap:14px;padding:14px 0;}
+.brand-logo-wrap{width:46px;height:46px;border-radius:50%;background:white;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.3);overflow:hidden;flex-shrink:0;}
+.brand-logo-img{width:100%;height:100%;object-fit:cover;}
+.brand-logo-fb{font-size:11px;font-weight:900;color:#6C3FC5;text-align:center;line-height:1.2;display:none;}
+.brand-name{font-size:17px;font-weight:800;color:white;}
+.brand-sub{font-size:11px;color:rgba(255,255,255,0.55);font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:0.06em;}
+.header-nav{display:flex;align-items:center;gap:8px;}
+.nav-btn{padding:9px 22px;border-radius:40px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.nav-ghost{background:rgba(255,255,255,0.1);color:rgba(255,255,255,0.75);border:1.5px solid rgba(255,255,255,0.18);}
+.nav-ghost:hover{background:rgba(255,255,255,0.18);color:white;}
+.nav-active{background:linear-gradient(135deg,#a855f7,#ec4899);color:white;box-shadow:0 4px 20px rgba(168,85,247,0.45);border:1.5px solid transparent;}
+.header-clock{display:flex;flex-direction:column;justify-content:center;text-align:right;padding:14px 0;}
+.clock-time{font-size:21px;font-weight:800;color:#ffd97d;letter-spacing:1.5px;}
+.clock-date{font-size:11px;color:rgba(255,255,255,0.5);font-weight:500;margin-top:2px;}
+
+.view{display:none;position:relative;z-index:10;}
+.view.active{display:block;}
+
+.ci-wrap{max-width:680px;margin:0 auto;padding:40px 24px;}
+.page-hero{margin-bottom:32px;}
+.page-hero-title{font-size:36px;font-weight:900;color:white;line-height:1.15;margin-bottom:8px;}
+.page-hero-title .accent{background:linear-gradient(90deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.page-hero-sub{font-size:15px;color:rgba(255,255,255,0.6);font-weight:500;line-height:1.65;}
+.glass-panel{background:rgba(255,255,255,0.09);backdrop-filter:blur(28px);border:1.5px solid rgba(255,255,255,0.16);border-radius:28px;padding:32px;box-shadow:0 24px 64px rgba(0,0,0,0.35);}
+.panel-section{margin-bottom:28px;}
+.panel-section:last-child{margin-bottom:0;}
+.sec-heading{font-size:11px;font-weight:800;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.12em;margin-bottom:12px;}
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;}
+.ses-pill{padding:10px 20px;border-radius:40px;border:1.5px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.08);font-size:13px;font-weight:700;color:rgba(255,255,255,0.65);cursor:pointer;transition:all 0.2s;font-family:'Inter',sans-serif;line-height:1.3;}
+.ses-pill:hover{background:rgba(255,255,255,0.16);color:white;}
+.ses-pill.active{background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;border-color:transparent;box-shadow:0 4px 18px rgba(124,58,237,0.5);}
+.ses-pill-name{font-size:13px;}
+.ses-pill-time{font-size:11px;opacity:0.7;margin-top:2px;}
+.search-wrap{position:relative;}
+.search-icon-wrap{position:absolute;left:18px;top:50%;transform:translateY(-50%);}
+.search-input{width:100%;padding:15px 18px 15px 52px;background:rgba(255,255,255,0.09);border:1.5px solid rgba(255,255,255,0.16);border-radius:40px;color:white;font-size:15px;font-weight:600;outline:none;transition:all 0.2s;font-family:'Inter',sans-serif;}
+.search-input::placeholder{color:rgba(255,255,255,0.3);font-weight:500;}
+.search-input:focus{border-color:rgba(168,85,247,0.7);background:rgba(168,85,247,0.12);box-shadow:0 0 0 4px rgba(168,85,247,0.15);}
+.stu-list{display:flex;flex-direction:column;gap:8px;}
+.stu-row{display:flex;align-items:center;gap:16px;background:rgba(255,255,255,0.07);border:1.5px solid rgba(255,255,255,0.11);border-radius:16px;padding:14px 18px;cursor:pointer;transition:all 0.2s;}
+.stu-row:hover{background:rgba(168,85,247,0.18);border-color:rgba(168,85,247,0.45);transform:translateY(-1px);box-shadow:0 6px 24px rgba(0,0,0,0.25);}
+.stu-row.checked{background:rgba(34,197,94,0.1);border-color:rgba(34,197,94,0.3);cursor:default;transform:none;}
+.stu-av{width:46px;height:46px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:900;flex-shrink:0;}
+.av-a{background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;}
+.av-b{background:linear-gradient(135deg,#d97706,#fbbf24);color:#1c0a4a;}
+.av-c{background:linear-gradient(135deg,#0891b2,#06b6d4);color:white;}
+.av-d{background:linear-gradient(135deg,#be185d,#ec4899);color:white;}
+.stu-info{flex:1;min-width:0;}
+.stu-name{font-size:15px;font-weight:800;color:white;}
+.stu-details{display:flex;align-items:center;gap:10px;margin-top:4px;flex-wrap:wrap;}
+.stu-detail-item{font-size:12px;color:rgba(255,255,255,0.45);font-weight:500;}
+.stu-id{font-size:11px;color:rgba(255,255,255,0.28);font-family:monospace;margin-top:3px;}
+.stu-intime{font-size:12px;color:#4ade80;font-weight:700;margin-top:3px;}
+.dot-sep{width:3px;height:3px;border-radius:50%;background:rgba(255,255,255,0.25);}
+.btn-checkin{background:linear-gradient(135deg,#7c3aed,#a855f7);color:white;border:none;border-radius:40px;padding:9px 20px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;transition:all 0.2s;box-shadow:0 4px 14px rgba(124,58,237,0.45);}
+.btn-checkin:hover{transform:scale(1.04);}
+.btn-checkin:disabled{opacity:0.6;cursor:not-allowed;transform:none;}
+.badge-present{display:flex;align-items:center;gap:6px;background:rgba(34,197,94,0.15);color:#4ade80;border:1.5px solid rgba(34,197,94,0.3);border-radius:40px;padding:9px 18px;font-size:13px;font-weight:700;white-space:nowrap;}
+
+.state-box{text-align:center;padding:48px 24px;background:rgba(255,255,255,0.05);border:1.5px dashed rgba(255,255,255,0.15);border-radius:20px;}
+.state-icon{font-size:44px;margin-bottom:14px;}
+.state-title{font-size:18px;font-weight:800;color:white;margin-bottom:8px;}
+.state-sub{font-size:14px;color:rgba(255,255,255,0.5);line-height:1.7;}
+.loading-spin{display:inline-block;width:36px;height:36px;border:3px solid rgba(255,255,255,0.15);border-top-color:#a855f7;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:14px;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.retry-btn{margin-top:20px;padding:11px 30px;border-radius:40px;background:rgba(168,85,247,0.2);color:#c4b5fd;border:1.5px solid rgba(168,85,247,0.4);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.retry-btn:hover{background:#7c3aed;color:white;}
+.nf-btn{margin-top:20px;padding:11px 30px;border-radius:40px;background:rgba(245,166,35,0.15);color:#fbbf24;border:1.5px solid rgba(245,166,35,0.35);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.2s;}
+.nf-btn:hover{background:#f59e0b;color:#1c0a4a;}
+
+/* Toast notification */
+.toast{position:fixed;bottom:32px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(30,15,70,0.95);backdrop-filter:blur(20px);border:1.5px solid rgba(255,255,255,0.15);border-radius:40px;padding:14px 28px;font-size:14px;font-weight:700;color:white;z-index:700;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:rgba(34,197,94,0.5);color:#4ade80;}
+.toast.error{border-color:rgba(239,68,68,0.5);color:#f87171;}
+.toast.warn{border-color:rgba(245,158,11,0.5);color:#fbbf24;}
+
+.celeb{display:none;position:fixed;inset:0;z-index:600;background:radial-gradient(ellipse 70% 70% at 30% 30%,rgba(124,58,237,0.55),transparent 65%),radial-gradient(ellipse 60% 60% at 70% 70%,rgba(236,72,153,0.45),transparent 65%),rgba(12,5,32,0.97);flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:32px;}
+.celeb.show{display:flex;animation:popIn 0.3s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes popIn{from{opacity:0;transform:scale(0.88)}to{opacity:1;transform:scale(1)}}
+.confetti-wrap{position:fixed;inset:0;pointer-events:none;z-index:601;}
+.celeb-glow{width:170px;height:170px;border-radius:50%;background:radial-gradient(circle,rgba(168,85,247,0.35),transparent 70%);border:2px solid rgba(168,85,247,0.35);display:flex;align-items:center;justify-content:center;margin-bottom:24px;animation:glowPulse 1.4s ease infinite alternate;box-shadow:0 0 60px rgba(168,85,247,0.35);}
+@keyframes glowPulse{from{box-shadow:0 0 40px rgba(168,85,247,0.25)}to{box-shadow:0 0 90px rgba(168,85,247,0.55)}}
+.celeb-emoji{font-size:76px;animation:emojiFloat 0.7s ease infinite alternate;}
+@keyframes emojiFloat{from{transform:translateY(0) scale(1)}to{transform:translateY(-14px) scale(1.1)}}
+.celeb-label{font-size:12px;font-weight:800;color:#ec4899;text-transform:uppercase;letter-spacing:0.18em;margin-bottom:10px;}
+.celeb-name{font-size:54px;font-weight:900;line-height:1.05;margin-bottom:18px;background:linear-gradient(90deg,#fff 30%,#e9d5ff,#fff 70%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.celeb-bar{width:80px;height:3px;border-radius:2px;margin:0 auto 18px;background:linear-gradient(90deg,#7c3aed,#ec4899,#f59e0b);}
+.celeb-msg{font-size:19px;font-weight:700;color:rgba(255,255,255,0.85);margin-bottom:6px;}
+.celeb-sub{font-size:14px;color:rgba(255,255,255,0.45);font-weight:500;}
+
+.dash-wrap{padding:40px;}
+.dash-header{margin-bottom:28px;}
+.dash-live{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 8px #4ade80;animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.live-label{font-size:12px;font-weight:700;color:#4ade80;text-transform:uppercase;letter-spacing:0.1em;}
+.dash-title{font-size:28px;font-weight:900;color:white;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px;}
+.stat-card{border-radius:22px;padding:22px;border:1.5px solid rgba(255,255,255,0.1);backdrop-filter:blur(12px);position:relative;overflow:hidden;}
+.stat-card::after{content:'';position:absolute;top:-40px;right:-40px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.04);}
+.st1{background:linear-gradient(135deg,rgba(109,40,217,0.55),rgba(139,92,246,0.35));}
+.st2{background:linear-gradient(135deg,rgba(4,120,87,0.55),rgba(16,185,129,0.35));}
+.st3{background:linear-gradient(135deg,rgba(180,83,9,0.55),rgba(245,158,11,0.35));}
+.st4{background:linear-gradient(135deg,rgba(157,23,77,0.55),rgba(236,72,153,0.35));}
+.stat-icon{font-size:22px;margin-bottom:10px;}
+.stat-num{font-size:40px;font-weight:900;color:white;line-height:1;margin-bottom:5px;}
+.stat-label{font-size:12px;font-weight:700;color:rgba(255,255,255,0.55);text-transform:uppercase;letter-spacing:0.07em;}
+.prog-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:18px;}
+.prog-card{background:rgba(255,255,255,0.07);backdrop-filter:blur(18px);border:1.5px solid rgba(255,255,255,0.12);border-radius:24px;overflow:hidden;}
+.prog-head{padding:20px 22px;background:rgba(255,255,255,0.04);border-bottom:1px solid rgba(255,255,255,0.08);}
+.prog-name{font-size:17px;font-weight:800;color:white;margin-bottom:4px;}
+.prog-time{font-size:12px;color:rgba(255,255,255,0.45);font-weight:500;}
+.prog-bar-bg{height:5px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;margin-top:12px;}
+.prog-bar-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,#7c3aed,#ec4899);transition:width 0.6s ease;}
+.prog-bar-text{font-size:12px;color:rgba(255,255,255,0.45);font-weight:600;margin-top:6px;}
+.prog-bar-text strong{color:#c4b5fd;}
+.roster-item{display:flex;align-items:center;gap:12px;padding:12px 22px;border-bottom:1px solid rgba(255,255,255,0.06);transition:background 0.15s;}
+.roster-item:last-child{border-bottom:none;}
+.roster-item:hover{background:rgba(255,255,255,0.04);}
+.ro-av{width:36px;height:36px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;flex-shrink:0;}
+.ro-name{flex:1;}
+.ro-n{font-size:14px;font-weight:700;color:white;}
+.ro-m{font-size:11px;color:rgba(255,255,255,0.4);font-weight:500;margin-top:2px;}
+.ro-time{color:#4ade80;font-weight:700;}
+.ro-badge-in{background:rgba(34,197,94,0.15);color:#4ade80;border:1px solid rgba(34,197,94,0.3);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:800;}
+.ro-mark-btn{background:rgba(245,158,11,0.12);color:#fbbf24;border:1px solid rgba(245,158,11,0.3);border-radius:20px;padding:5px 13px;font-size:11px;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.ro-mark-btn:hover{background:#f59e0b;color:#1c0a4a;}
+.dash-sec-title{font-size:20px;font-weight:800;color:white;margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="deco">
+  <div class="deco-ring dr1"></div><div class="deco-ring dr2"></div>
+  <div class="deco-ring dr3"></div><div class="deco-ring dr4"></div>
+  <div class="deco-dot dd1"></div><div class="deco-dot dd2"></div>
+  <div class="deco-dot dd3"></div><div class="deco-dot dd4"></div>
+</div>
+
+<div class="header">
+  <div class="brand">
+    <div class="brand-logo-wrap">
+      <img class="brand-logo-img" src="https://akshayamekala4569.github.io/BAM-Website/betty_Logo.png"
+        onerror="this.style.display='none';this.nextElementSibling.style.display='flex';" alt="BAMF">
+      <div class="brand-logo-fb">BAMF</div>
+    </div>
+    <div>
+      <div class="brand-name">Betty Ann Moore Foundation</div>
+      <div class="brand-sub">Attendance System</div>
+    </div>
+  </div>
+  <div class="header-nav">
+    <button class="nav-btn nav-active" onclick="switchView('ci',this)">Student Check-In</button>
+    <button class="nav-btn nav-ghost" onclick="switchView('db',this)">Staff Dashboard</button>
+  </div>
+  <div class="header-clock">
+    <div class="clock-time" id="clock-t"></div>
+    <div class="clock-date" id="clock-d"></div>
+  </div>
+</div>
+
+<div class="view active" id="view-ci">
+  <div class="ci-wrap">
+    <div class="page-hero">
+      <div class="page-hero-title">Empowering Youth.<br><span class="accent">Check In Today.</span></div>
+      <div class="page-hero-sub">Select your program, find your name, and tap the button to mark your attendance.</div>
+    </div>
+    <div class="glass-panel">
+      <div class="panel-section">
+        <div class="sec-heading">Select Your Program</div>
+        <div class="pill-row" id="ses-pills"><div class="ses-pill active"><div class="ses-pill-name">Loading...</div></div></div>
+      </div>
+      <div class="panel-section">
+        <div class="sec-heading">Find Your Name</div>
+        <div class="search-wrap">
+          <div class="search-icon-wrap">🔍</div>
+          <input class="search-input" id="search-inp" type="text"
+            placeholder="Start typing your first or last name..." oninput="doFilter()" autocomplete="off">
+        </div>
+      </div>
+      <div class="panel-section">
+        <div class="sec-heading">Today's Students</div>
+        <div class="stu-list" id="stu-list">
+          <div class="state-box"><div class="loading-spin"></div><div class="state-title">Connecting to your sheet...</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="view" id="view-db">
+  <div class="dash-wrap">
+    <div class="dash-header">
+      <div class="dash-live"><span class="live-dot"></span><span class="live-label">Live Updates</span></div>
+      <div class="dash-title">Attendance Overview</div>
+    </div>
+    <div class="stats-grid" id="stats-grid"></div>
+    <div class="dash-sec-title">Programs Today</div>
+    <div class="prog-grid" id="prog-grid"></div>
+  </div>
+</div>
+
+<div class="celeb" id="celeb" onclick="hideCeleb()">
+  <div class="confetti-wrap" id="confetti-wrap"></div>
+  <div class="celeb-glow"><div class="celeb-emoji" id="celeb-emoji">🌟</div></div>
+  <div class="celeb-label">Successfully Checked In</div>
+  <div class="celeb-name" id="celeb-name">Name!</div>
+  <div class="celeb-bar"></div>
+  <div class="celeb-msg">Welcome to BAMF today! 🎉</div>
+  <div class="celeb-sub">You are exactly where you are meant to be 💜</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIGURATION — UPDATE THIS AFTER DEPLOYING APPS SCRIPT ──
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwXq8C6z1So6XyzGSX5MQrHMm7bPcKqg_vuLYCoU2YsHlgXbcy5qKi7AdFnEvNGIHFCIQ/exec';
+const API_KEY    = 'AIzaSyDSzjS2fvJBmVA-eXhn3ZYBOknyWxKDmHg';
+const SHEET_ID   = '1yei9IoDmclhtgqzQnbmV5GYtepjkWOz6pxVK9hQJI0I';
+// ─────────────────────────────────────────────────────────────
+
+const EMOJIS  = ['🌟','🦋','🎨','🚀','🌺','💫','🎭','🌈','✨','🦄','🎵','🔬'];
+const CONF_C  = ['#a855f7','#f59e0b','#ec4899','#22c55e','#06b6d4','#fbbf24','#7c3aed'];
+const AV_CLS  = ['av-a','av-b','av-c','av-d'];
+
+let STUDENTS = [], PROGRAMS = [], SESSIONS = [];
+let att      = {}; // local cache of check-ins
+let activeSes = null;
+
+const ini   = s => (s.firstName[0]||'')+(s.lastName[0]||'');
+const avCls = s => AV_CLS[parseInt((s.id||'0').replace(/\D/g,'').slice(-2))%4];
+const emj   = s => EMOJIS[parseInt((s.id||'0').replace(/\D/g,'').slice(-2))%EMOJIS.length];
+const getProg = id => PROGRAMS.find(p=>p.id===id);
+const getSes  = id => SESSIONS.find(s=>s.id===id);
+const stuFor  = sid => { const s=getSes(sid); return s ? STUDENTS.filter(x=>x.programId===s.programId) : []; };
+const nowStr  = () => new Date().toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+
+// ── CLOCK ────────────────────────────────────────────────────
+function tick() {
+  const d = new Date();
+  document.getElementById('clock-t').textContent = d.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('clock-d').textContent = d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+}
+
+// ── FETCH FROM SHEET via Apps Script ─────────────────────────
+async function fetchFromSheet(action, params='') {
+  const url = `${SCRIPT_URL}?action=${action}${params}`;
+  const res  = await fetch(url);
+  return res.json();
+}
+
+async function loadAll() {
+  try {
+    showLoading('Connecting to your sheet...');
+
+    const [pData, sData, stData] = await Promise.all([
+      fetchFromSheet('getPrograms'),
+      fetchFromSheet('getSessions'),
+      fetchFromSheet('getStudents'),
+    ]);
+
+    if (pData.error || sData.error || stData.error) {
+      throw new Error(pData.error || sData.error || stData.error);
+    }
+
+    PROGRAMS = pData.programs || [];
+    SESSIONS = sData.sessions || [];
+    STUDENTS = stData.students || [];
+
+    if (!SESSIONS.length) { showStateError('No sessions found in your Sessions tab yet.'); return; }
+    if (!STUDENTS.length) { showStateError('No students found in your Students tab yet.'); return; }
+
+    activeSes = SESSIONS[0].id;
+
+    // Load existing attendance for first session
+    await loadAttendanceForSession(activeSes);
+
+    renderPills();
+    renderStus('');
+    showToast('✅ Connected to Google Sheet', 'success');
+
+  } catch (err) {
+    showStateError(`Could not connect: ${err.message}. Make sure your Apps Script is deployed and the URL is correct.`);
+  }
+}
+
+async function loadAttendanceForSession(sesId) {
+  try {
+    const data = await fetchFromSheet('getAttendance', `&sessionId=${sesId}`);
+    if (data.records) {
+      if (!att[sesId]) att[sesId] = {};
+      data.records.forEach(r => {
+        att[sesId][r.studentId] = r.checkInTime;
+      });
+    }
+  } catch (e) {
+    console.warn('Could not load attendance:', e);
+  }
+}
+
+// ── PILLS ─────────────────────────────────────────────────────
+function renderPills() {
+  document.getElementById('ses-pills').innerHTML = SESSIONS.map(s => {
+    const p = getProg(s.programId);
+    const timeLabel = s.startTime ? `${s.startTime} – ${s.endTime}` : (p ? p.time : '');
+    return `<div class="ses-pill${s.id===activeSes?' active':''}" onclick="selSes('${s.id}')">
+      <div class="ses-pill-name">${p ? p.name : s.programName}</div>
+      <div class="ses-pill-time">${timeLabel}</div>
+    </div>`;
+  }).join('');
+}
+
+async function selSes(sid) {
+  activeSes = sid;
+  renderPills();
+  document.getElementById('search-inp').value = '';
+  showLoading('Loading students...');
+  await loadAttendanceForSession(sid);
+  renderStus('');
+}
+
+// ── STUDENTS ──────────────────────────────────────────────────
+function doFilter() { renderStus(document.getElementById('search-inp').value); }
+
+function renderStus(q) {
+  const el     = document.getElementById('stu-list');
+  const list   = stuFor(activeSes);
+  const trimQ  = q.trim().toLowerCase();
+  const filtered = trimQ ? list.filter(s=>(s.firstName+' '+s.lastName).toLowerCase().includes(trimQ)) : list;
+
+  if (!filtered.length && trimQ) {
+    el.innerHTML = `<div class="state-box">
+      <div class="state-icon">🔍</div>
+      <div class="state-title">Name not found</div>
+      <div class="state-sub">We could not find <strong style="color:white">"${q}"</strong> in today's list.<br>Please check your spelling or ask a BAMF staff member for help.</div>
+      <button class="nf-btn" onclick="alert('Please see a BAMF staff member for assistance.')">Get Staff Help</button>
+    </div>`; return;
+  }
+
+  if (!filtered.length) {
+    el.innerHTML = `<div class="state-box">
+      <div class="state-icon">📋</div>
+      <div class="state-title">No students registered yet</div>
+      <div class="state-sub">No students are registered for this program yet.</div>
+    </div>`; return;
+  }
+
+  el.innerHTML = filtered.map(s => {
+    const isIn = att[activeSes]?.[s.id];
+    return `<div class="stu-row${isIn?' checked':''}" id="row-${s.id}">
+      <div class="stu-av ${avCls(s)}">${ini(s)}</div>
+      <div class="stu-info">
+        <div class="stu-name">${s.firstName} ${s.lastName}</div>
+        <div class="stu-details">
+          ${s.age?`<span class="stu-detail-item">👤 Age ${s.age}</span>`:''}
+        </div>
+        <div class="stu-id">${s.id}</div>
+        ${isIn?`<div class="stu-intime">✓ Checked in at ${isIn}</div>`:''}
+      </div>
+      <div>
+        ${isIn
+          ?`<div class="badge-present">✓ Present</div>`
+          :`<button class="btn-checkin" id="btn-${s.id}" onclick="checkIn('${s.id}','SELF')">Check In</button>`}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── CHECK IN ──────────────────────────────────────────────────
+async function checkIn(stuId, markedBy) {
+  const s   = STUDENTS.find(x=>x.id===stuId);
+  const ses = getSes(activeSes);
+  const p   = getProg(ses?.programId);
+  if (!s || !ses) return;
+
+  // Disable button immediately to prevent double tap
+  const btn = document.getElementById('btn-'+stuId);
+  if (btn) { btn.disabled=true; btn.textContent='Checking in...'; }
+
+  try {
+    const payload = {
+      action:      'checkIn',
+      sessionId:   activeSes,
+      programId:   ses.programId,
+      programName: p ? p.name : ses.programName,
+      sessionDate: ses.date || new Date().toLocaleDateString(),
+      studentId:   s.id,
+      firstName:   s.firstName,
+      lastName:    s.lastName,
+      age:         s.age,
+      markedBy:    markedBy || 'SELF',
+    };
+
+    const res = await fetch(SCRIPT_URL, {
+      method:  'POST',
+      body:    JSON.stringify(payload),
+    });
+    const data = await res.json();
+
+    if (data.duplicate) {
+      showToast(`⚠️ ${s.firstName} is already checked in`, 'warn');
+      att[activeSes] = att[activeSes] || {};
+      att[activeSes][stuId] = data.checkInTime || nowStr();
+      renderStus(document.getElementById('search-inp').value);
+      return;
+    }
+
+    if (!data.success) {
+      showToast(`❌ Check in failed: ${data.error}`, 'error');
+      if (btn) { btn.disabled=false; btn.textContent='Check In'; }
+      return;
+    }
+
+    // Success
+    att[activeSes] = att[activeSes] || {};
+    att[activeSes][stuId] = data.checkInTime;
+    showCeleb(s);
+    setTimeout(()=>{ renderStus(document.getElementById('search-inp').value); renderDash(); }, 3200);
+
+  } catch (err) {
+    showToast('❌ Connection error. Please try again.', 'error');
+    if (btn) { btn.disabled=false; btn.textContent='Check In'; }
+  }
+}
+
+// ── CELEBRATION ───────────────────────────────────────────────
+function spawnConfetti() {
+  const w=document.getElementById('confetti-wrap'); w.innerHTML='';
+  const st=document.createElement('style');
+  st.textContent=`@keyframes cf{0%{opacity:1;transform:translateY(-10px) rotate(0)}100%{opacity:0;transform:translateY(110vh) rotate(900deg)}}`;
+  w.appendChild(st);
+  for(let i=0;i<80;i++){
+    const d=document.createElement('div'); const sz=Math.random()*11+5;
+    d.style.cssText=`position:absolute;width:${sz}px;height:${sz}px;background:${CONF_C[Math.floor(Math.random()*CONF_C.length)]};left:${Math.random()*100}vw;top:-15px;border-radius:${Math.random()>.5?'50%':'3px'};opacity:0;animation:cf ${(Math.random()*1.5+1.5).toFixed(1)}s ease ${(Math.random()*1.4).toFixed(1)}s forwards;`;
+    w.appendChild(d);
+  }
+}
+function showCeleb(s) {
+  document.getElementById('celeb-name').textContent  = s.firstName+'!';
+  document.getElementById('celeb-emoji').textContent = emj(s);
+  spawnConfetti();
+  document.getElementById('celeb').classList.add('show');
+  setTimeout(hideCeleb,3500);
+}
+function hideCeleb() { document.getElementById('celeb').classList.remove('show'); }
+
+// ── TOAST ─────────────────────────────────────────────────────
+function showToast(msg, type='success') {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className=`toast ${type} show`;
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── DASHBOARD ─────────────────────────────────────────────────
+function renderDash() {
+  let total=0, pres=0;
+  SESSIONS.forEach(s=>{const st=stuFor(s.id);total+=st.length;pres+=att[s.id]?Object.keys(att[s.id]).length:0;});
+  const rate=total>0?Math.round(pres/total*100):0;
+
+  document.getElementById('stats-grid').innerHTML=`
+    <div class="stat-card st1"><div class="stat-icon">👩‍🎓</div><div class="stat-num">${total}</div><div class="stat-label">Expected Today</div></div>
+    <div class="stat-card st2"><div class="stat-icon">✅</div><div class="stat-num">${pres}</div><div class="stat-label">Checked In</div></div>
+    <div class="stat-card st3"><div class="stat-icon">⏳</div><div class="stat-num">${total-pres}</div><div class="stat-label">Not Yet Arrived</div></div>
+    <div class="stat-card st4"><div class="stat-icon">📈</div><div class="stat-num">${rate}%</div><div class="stat-label">Attendance Rate</div></div>
+  `;
+
+  document.getElementById('prog-grid').innerHTML=SESSIONS.map(ses=>{
+    const prog=getProg(ses.programId);
+    const studs=stuFor(ses.id);
+    const p=att[ses.id]?Object.keys(att[ses.id]).length:0;
+    const pct=studs.length>0?Math.round(p/studs.length*100):0;
+    const rows=studs.map(s=>{
+      const isIn=att[ses.id]?.[s.id];
+      return `<div class="roster-item">
+        <div class="ro-av ${avCls(s)}">${ini(s)}</div>
+        <div class="ro-name">
+          <div class="ro-n">${s.firstName} ${s.lastName}</div>
+          <div class="ro-m">${s.id}${isIn?` · <span class="ro-time">In at ${isIn}</span>`:''}</div>
+        </div>
+        ${isIn
+          ?`<div class="ro-badge-in">✓ Present</div>`
+          :`<button class="ro-mark-btn" onclick="checkIn('${s.id}','MANUAL')">Mark Present</button>`}
+      </div>`;
+    }).join('');
+    const timeLabel=ses.startTime?`${ses.startTime} – ${ses.endTime}`:(prog?prog.time:'');
+    return `<div class="prog-card">
+      <div class="prog-head">
+        <div class="prog-name">${prog?prog.name:ses.programName}</div>
+        <div class="prog-time">${timeLabel}</div>
+        <div class="prog-bar-bg"><div class="prog-bar-fill" style="width:${pct}%"></div></div>
+        <div class="prog-bar-text"><strong>${p} of ${studs.length}</strong> checked in · ${pct}%</div>
+      </div>
+      <div>${rows}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── VIEW SWITCH ───────────────────────────────────────────────
+function switchView(v,btn) {
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>{b.classList.remove('nav-active');b.classList.add('nav-ghost');});
+  document.getElementById('view-'+v).classList.add('active');
+  btn.classList.remove('nav-ghost'); btn.classList.add('nav-active');
+  if(v==='db') renderDash();
+}
+
+// ── HELPERS ───────────────────────────────────────────────────
+function showLoading(msg) {
+  document.getElementById('stu-list').innerHTML=`<div class="state-box"><div class="loading-spin"></div><div class="state-title">${msg}</div></div>`;
+}
+function showStateError(msg) {
+  document.getElementById('stu-list').innerHTML=`<div class="state-box"><div class="state-icon">⚠️</div><div class="state-title">Could not load data</div><div class="state-sub">${msg}</div><button class="retry-btn" onclick="loadAll()">Try Again</button></div>`;
+}
+
+// ── INIT ──────────────────────────────────────────────────────
+tick(); setInterval(tick,1000);
+loadAll();
+</script>
+</body>
+</html>
